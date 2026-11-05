@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Raspa Bono Millonario - José</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#0d062e;color:#fff;min-height:100vh}
+.cinta{height:14px;background:repeating-linear-gradient(90deg,#ff5a5a 0 20px,#ffd000 20px 40px,#5ad66f 40px 60px,#4d8cff 60px 80px)}
+.wrap{max-width:420px;margin:0 auto;padding:10px}
+.card{background:#fff;color:#222;border-radius:16px;overflow:hidden}
+.head{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;font-weight:bold}
+.badge{background:#6c4bff;color:#fff;font-size:10px;padding:4px 10px;border-radius:999px}
+.body{padding:14px;background:#f8f5ff}
+.btn{width:100%;border:none;border-radius:999px;padding:14px;font-weight:bold;font-size:15px;margin:8px 0;cursor:pointer}
+.btn-y{background:#ffcc00;color:#222}.btn-g{background:#25D366;color:#fff}.btn-p{background:#6c4bff;color:#fff}
+.input{width:100%;padding:12px;border-radius:999px;border:1px solid #ddd;margin:6px 0}
+.hidden{display:none}
+#scratchBox{position:relative;width:100%;height:320px;background:#fff;border-radius:16px;overflow:hidden;border:4px solid #ffcc00}
+#prizes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:10px;height:100%}
+.prize{background:#fff9c4;border:1px solid #e5c200;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4px}
+.prize b{font-size:11px;line-height:1.1}
+#cover{position:absolute;inset:0;touch-action:none}
+.res{background:linear-gradient(180deg,#2a165a,#1a0b4e);border-radius:16px;padding:16px;text-align:center}
+.monto{font-size:36px;color:#ffdf4a;font-weight:900;line-height:1}
+.info{background:#fff;color:#222;border-radius:12px;padding:10px;margin:8px 0;display:flex;justify-content:space-between;font-size:11px}
+</style>
+</head>
+<body>
+<div class="cinta"></div>
+<div class="wrap">
+<div id="admin">
+<h2 style="text-align:center;margin:14px 0">RASPADITA ONLINE<br><span style="font-size:11px;background:#00c851;padding:4px 10px;border-radius:999px">PANEL DE JOSÉ - 595971142600</span></h2>
+<div class="card"><div class="body">
+<input id="cli" class="input" placeholder="Nombre del cliente Ej: José González" value="José González">
+<label style="font-size:12px;font-weight:bold">¿Cuántos cartones compró?</label>
+<select id="cant" class="input"><option value="1">1 cartón - 5.000 Gs</option><option value="2" selected>2 cartones - 10.000 Gs</option><option value="3">3 cartones - 15.000 Gs</option><option value="5">5 cartones - 25.000 Gs</option></select>
+<button class="btn btn-p" onclick="gen()">🎟️ GENERAR LINK DE VENTA</button>
+<div id="res" class="hidden">
+<div style="background:#d4edda;padding:8px;border-radius:8px;font-size:12px">✅ Link generado</div>
+<div id="link" style="background:#fff;border:2px dashed #6c4bff;padding:10px;border-radius:10px;font-size:11px;word-break:break-all;margin:8px 0"></div>
+<button class="btn btn-g" onclick="copy()">📋 COPIAR LINK</button>
+<button class="btn" style="background:#222;color:#fff" onclick="window.open(document.getElementById('link').innerText,'_blank')">👁️ VER COMO CLIENTE</button>
+</div>
+</div></div>
+</div>
+<div id="client" class="hidden">
+<div class="card">
+<div class="head"><span>Raspa & Gana</span><span class="badge">RASPADITA ONLINE</span></div>
+<div class="body">
+<div id="step1">
+<h3 style="text-align:center
