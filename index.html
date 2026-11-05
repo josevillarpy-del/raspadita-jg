@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raspaditas Online Premium</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+body{font-family:'Poppins',sans-serif;user-select:none;-webkit-user-select:none}
+.scratch-card-canvas{cursor:pointer;touch-action:none}
+</style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
+
+<div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 hidden">
+<div class="bg-slate-800 text-amber-400 border border-amber-500 px-6 py-3 rounded-xl shadow-2xl"><span id="toast-text" class="font-semibold text-sm"></span></div>
+</div>
+
+<main class="flex-grow flex items-center justify-center p-4">
+
+<!-- VISTA 1: ADMIN -->
+<div id="view-admin" class="w-full max-w-4xl bg-slate-800/50 border border-slate-700 rounded-3xl p-6 md:p-8 shadow-2xl hidden">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-700 pb-6 mb-6">
+<div><h1 class="text-3xl font-extrabold bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 bg-clip-text text-transparent">Panel de Control</h1><p class="text-slate-400 text-sm mt-1">Generador de enlaces desechables para WhatsApp</p></div>
+<div class="bg-slate-800 px-4 py-2 rounded-2xl border border-slate-700 flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span><span class="text-xs font-semibold tracking-wider text-slate-300 uppercase">Simulador Activo</span></div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-1 bg-slate-800 p-6 rounded-2xl border border-slate-700 flex flex-col gap-5">
+<h2 class="text-lg font-bold">Configurar Premio</h2>
+<div><label class="block text-xs font-bold text-slate-400 uppercase mb-2">Monto del Premio</label>
+<select id="prize-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-amber-500">
+<option value="5000">Gs. 5.000</option><option value="10000">Gs. 10.000</option><option value="20000">Gs. 20.000</option><option value="100000">Gs. 100.000</option><option value="1000000">Gs. 1.000.000</option><option value="3000000">Gs. 3.000.000</option><option value="5000000">Gs. 5.000.000</option><option value="0">Sin Premio (Perdedor)</option>
+</select></div>
+<button id="btn-generate" class="w-full bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 font-bold py-3.5 px-4 rounded-xl shadow-lg active:scale-[0.98] text-sm uppercase">Generar Enlace Único</button>
+<p class="text-[11px] text-slate-400">✅ Ahora el link funciona en cualquier celular, no solo en el tuyo.</p>
+</div>
+<div class="lg:col-span-2 flex flex-col">
+<h2 class="text-lg font-bold mb-4 flex items-center justify-between"><span>Enlaces Creados</span><button id="btn-clear" class="text-xs text-rose-400">Borrar Historial</button></h2>
+<div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden flex-grow min-h-[250px] max-h-[350px] overflow-y-auto">
+<table class="w-full text-left"><thead><tr class="bg-slate-900/50 border-b border-slate-700 text-xs text-slate-400 uppercase font-bold"><th class="p-4">Premio</th><th class="p-4">Estado</th><th class="p-4 text-right">Acción</th></tr></thead>
+<tbody id="links-table-body" class="text-sm divide-y divide-slate-700/50"></tbody></table>
+<div id="no-links-msg" class="text-center py-12 text-slate-500 text-sm hidden">No has generado ningún enlace aún.</div>
+</div></div></div></div>
+
+<!-- VISTA 2: ERROR -->
+<div id="view-error" class="w-full max-w-md bg-slate-800 border border-slate-700 rounded-3xl p-8 text-center shadow-2xl hidden">
+<div class="w-20 h-20 bg-rose-500/10 border border-rose-500/30 rounded-full flex items-center justify-center mx-auto mb-6 text-rose-400 animate-bounce"><span class="text-4xl">⚠️</span></div>
+<h1 class="text-2xl font-bold mb-3" id="error-title">Acceso Inválido</h1>
+<p class="text-slate-400 text-sm leading-relaxed mb-6" id="error-message">Este link ya fue utilizado.</p>
+<a href="?" class="inline-block bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-6 py-3 rounded-xl uppercase">Ir al Panel Admin</a>
+</div>
+
+<!-- VISTA 3: ELEGIR CARTON -->
+<div id="view-choose-card" class="w-full max-w-xl text-center hidden">
+<h1 class="text-3xl font-extrabold mb-2 bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">¡Tu Enlace de la Suerte!</h1>
+<p class="text-slate-400 text-sm mb-8">Elige uno de los tres cartones disponibles para empezar a raspar.</p>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+<button onclick="selectCard(1)" class="group bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-slate-700 hover:border-amber-500 rounded-2xl p-6 hover:-translate-y-2 flex flex-col items-center gap-4 aspect-[4/5] shadow-xl"><div class="w-14 h-14 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center font-black text-xl border border-amber-500/20">01</div><span class="font-bold text-sm">🍀 Cartón Trébol</span></button>
+<button onclick="selectCard(2)" class="group bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-slate-700 hover:border-amber-500 rounded-2xl p-6 hover:-translate-y-2 flex flex-col items-center gap-4 aspect-[4/5] shadow-xl"><div class="w-14 h-14 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center font-black text-xl border border-amber-500/20">02</div><span class="font-bold text-sm">⭐ Cartón Estrella</span></button>
+<button onclick="selectCard(3)" class="group bg-gradient-to-br from-slate-800 to-slate-900 border-2 border-slate-700 hover:border-amber-500 rounded-2xl p-6 hover:-translate-y-2 flex flex-col items-center gap-4 aspect-[4/5] shadow-xl"><div class="w-14 h-14 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center font-black text-xl border border-amber-500/20">03</div><span class="font-bold text-sm">👑 Cartón Corona</span></button>
+</div></div>
+
+<!-- VISTA 4: JUEGO -->
+<div id="view-game" class="w-full max-w-md bg-gradient-to-b from-slate-800 to-slate-950 border-2 border-amber-500/30 rounded-3xl p-5 md:p-6 shadow-2xl relative overflow-hidden hidden">
+<div class="text-center mb-5"><span class="text-[10px] tracking-widest font-black uppercase text-amber-500 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full">Raspadita Online</span><h2 class="text-xl font-bold mt-2">¡Raspa con tu dedo!</h2><p class="text-slate-400 text-xs mt-0.5">Consigue 3 figuras iguales para ganar</p></div>
+<div class="grid grid-cols-3 gap-3 bg-slate-900/60 p-3 rounded-2xl border border-slate-800 mb-5 relative" id="scratch-grid"></div>
+<div class="bg-slate-900 border border-slate-800 rounded-xl p-3 text-center relative overflow-hidden"><div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Monto en Juego</div><div id="prize-footer-text" class="text-2xl font-black text-slate-400">¿?</div><div class="absolute inset-0 w-full h-full" id="footer-scratch-container"><canvas id="canvas-footer" class="w-full h-full scratch-card-canvas"></canvas></div></div>
+<div id="action-zone" class="mt-5 hidden"><button onclick="finishGame()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold py-3.5 px-4 rounded-xl text-sm uppercase shadow-lg">Finalizar y Validar Jugada</button></div>
+</div>
+</main>
+
+<div id="reward-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm hidden">
+<div class="bg-slate-800 border border-slate-700 w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl relative overflow-hidden">
+<div id="modal-glow" class="absolute -top-24 left-1/2 transform -translate-x-1/2 w-48 h-48 bg-amber-500/20 blur-3xl rounded-full"></div>
+<div id="modal-icon" class="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center font-bold text-3xl"></div>
+<h3 id="modal-title" class="text-2xl font-black mb-2"></h3><p id="modal-desc" class="text-slate-400 text-sm leading-relaxed mb-6"></p>
+<button onclick="closeModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-3 px-4 rounded-xl text-sm">Cerrar Ventana</button>
+</div></div>
+
+<footer class="py-4 border-t border-slate-800 text-center text-xs text-slate-600">© 2026 Raspaditas Pro. Enlaces de un solo uso.</footer>
+
+<script>
+const STORAGE_KEY='scratch_system_tokens';
+const USED_KEY='scratch_used_tokens';
+let db=JSON.parse(localStorage.getItem(STORAGE_KEY))||{};
+let usedTokens=JSON.parse(localStorage.getItem(USED_KEY))||{};
+const FIGURES=[{icon:'💎',name:'Diamante'},{icon:'🍀',name:'Trébol'},{icon:'👑',name:'Corona'},{icon:'⭐',name:'Estrella'},{icon:'💰',name:'Bolsa'},{icon:'🔥',name:'Fuego'}];
+let currentToken=null,currentPrize=0,gameInitialized=false,cellsScratchedCount=0,footerScratched=false;
+const totalGridCells=9;
+
+// === NUEVO: El premio viaja DENTRO del link, no solo en localStorage ===
+// Formato token: rasp_XXXX_PREMIO_XXXX -> Ej: rasp_a1b2c3_5000_x9z
+function encodeToken(prize){
+const rand=Math.random().toString(36).substring(2,9);
+const rand2=Math.random().toString(36).substring(2,6);
+return rasp_${rand}${prize}_${rand2}`;
+}
+function decodeToken(token){
+try{
+const parts=token.split('');
+if(parts.length>=4 && parts[0]==='rasp'){
+const prize=parseInt(parts[2]);
+if(!isNaN(prize)) return {prize, valid:true};
+}
+// Compatibilidad con tokens viejos guardados en localStorage
+if(db[token]) return {prize:db[token].prize, valid:true};
+return {valid:false};
+}catch(e){ return {valid:false}; }
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+const params=new URLSearchParams(window.location.search);
+const tokenParam=params.get('token');
+if(tokenParam){
+currentToken=tokenParam;
+// ¿Ya usado en ESTE celular?
+if(usedTokens[currentToken]){
+showErrorView("Enlace Ya Utilizado","Este cartón ya fue raspado y validado. Cada enlace solo se puede usar una vez.");
+return;
+}
+const decoded=decodeToken(currentToken);
+if(!decoded.valid){
+showErrorView("Enlace Inválido","El enlace no existe o es incorrecto.");
+return;
+}
+currentPrize=decoded.prize;
+// Guardar también en db local para historial
+if(!db[currentToken]){ db[currentToken]={prize:currentPrize,used:false,createdAt:new Date().toLocaleString()}; localStorage.setItem(STORAGE_KEY,JSON.stringify(db)); }
+if(db[currentToken].used){
+showErrorView("Enlace Ya Utilizado","Este cartón ya fue raspado.");
+return;
+}
+switchView('view-choose-card');
+} else {
+switchView('view-admin');
+renderAdminTable();
+}
+});
+
+function switchView(id){ ['view-admin','view-error','view-choose-card','view-game'].forEach(v=>document.getElementById(v).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+function showErrorView(t,m){ document.getElementById('error-title').innerText=t; document.getElementById('error-message').innerText=m; switchView('view-error'); }
+
+document.getElementById('btn-generate').addEventListener('click',()=>{
+const prizeValue=parseInt(document.getElementById('prize-select').value);
+const token=encodeToken(prizeValue);
+db[token]={prize:prizeValue,used:false,createdAt:new Date().toLocaleString()};
+localStorage.setItem(STORAGE_KEY,JSON.stringify(db));
+showToast("¡Enlace creado! Ahora funciona en cualquier celular");
+renderAdminTable();
+});
+document.getElementById('btn-clear').addEventListener('click',()=>{
+if(confirm("¿Limpiar historial?")){ db={}; localStorage.setItem(STORAGE_KEY,JSON.stringify(db)); renderAdminTable(); showToast("Historial limpio"); }
+});
+
+function renderAdminTable(){
+const tbody=document.getElementById('links-table-body');
+const noLinks=document.getElementById('no-links-msg');
+tbody.innerHTML='';
+const keys=Object.keys(db).reverse();
+if(keys.length===0){ noLinks.classList.remove('hidden'); return; }
+noLinks.classList.add('hidden');
+keys.forEach(key=>{
+const item=db[key];
+const fullLink=``${window.location.origin+window.location.pathname}?token={item.prize.toLocaleString()}:'Sin Premio'; const statusBadge=item.used?<span class="px-2 py-0.5 rounded-full text-xs bg-rose-500/10 text-rose-400 border border-rose-500/20">Usado / Quemado</span>:<span class="px-2 py-0.5 rounded-full text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Disponible</span>; const textMessage=encodeURIComponent(¡Hola! Te envío tu cartón exclusivo para la Raspadita Online. Entrá al link y descubrí tu premio si tenés 3 figuras iguales: {textMessage}; const tr=document.createElement('tr'); tr.className="hover:bg-slate-800/40"; tr.innerHTML=<td class="p-4 font-bold">{statusBadge}</td><td class="p-4 text-right flex justify-end gap-2"><button onclick="copyToClipboard('{whatsappUrl}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold px-2.5 py-1.5 rounded-lg text-xs">Enviar WA</a></td>`;
+tbody.appendChild(tr);
+});
+}
+function copyToClipboard(text){
+if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(()=>showToast("¡Enlace copiado!")).catch(()=>fallbackCopy(text)); }
+else fallbackCopy(text);
+}
+function fallbackCopy(text){
+const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; document.body.appendChild(ta); ta.select();
+try{ document.execCommand('copy'); showToast("¡Enlace copiado!"); }catch(e){ showToast("Error al copiar"); }
+document.body.removeChild(ta);
+}
+function showToast(m){ const t=document.getElementById('toast'); document.getElementById('toast-text').innerText=m; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),3000); }
+
+function selectCard(n){ switchView('view-game'); if(!gameInitialized) initScratchGame(); }
+function initScratchGame(){
+gameInitialized=true;
+// Marcar como usado INMEDIATAMENTE
+if(db[currentToken]){ db[currentToken].used=true; localStorage.setItem(STORAGE_KEY,JSON.stringify(db)); }
+usedTokens[currentToken]=true; localStorage.setItem(USED_KEY,JSON.stringify(usedTokens));
+
+const grid=document.getElementById('scratch-grid'); grid.innerHTML='';
+const footerText=document.getElementById('prize-footer-text');
+footerText.innerText=currentPrize>0?Gs. ${currentPrize.toLocaleString()}:"SUERTE PRÓXIMA"; let gridItems=[]; if(currentPrize&gt;0){ const winningFig=FIGURES[Math.floor(Math.random()*FIGURES.length)]; for(let i=0;i&lt;3;i++) gridItems.push({...winningFig}); const alts=FIGURES.filter(f=&gt;f.icon!==winningFig.icon); let counts={}; while(gridItems.length&lt;totalGridCells){ const r=alts[Math.floor(Math.random()*alts.length)]; counts[r.icon]=(counts[r.icon]||0)+1; if(counts[r.icon]&lt;3) gridItems.push({...r}); } } else { let counts={}; while(gridItems.length&lt;totalGridCells){ const r=FIGURES[Math.floor(Math.random()*FIGURES.length)]; counts[r.icon]=(counts[r.icon]||0)+1; if(counts[r.icon]&lt;3) gridItems.push({...r}); } } gridItems.sort(()=&gt;Math.random()-0.5); gridItems.forEach(item=&gt;{ const cell=document.createElement('div'); cell.className="bg-slate-800 border border-slate-700 aspect-square rounded-xl flex flex-col items-center justify-center relative select-none p-1 text-center shadow-inner"; cell.innerHTML=<div class="text-2xl md:text-3xl">${item.icon}&lt;/div&gt;&lt;div class="text-[9px] font-bold text-slate-400 uppercase"&gt;${item.name}</div>; const wrap=document.createElement('div'); wrap.className="absolute inset-0 w-full h-full rounded-xl overflow-hidden"; const canvas=document.createElement('canvas'); canvas.className="w-full h-full scratch-card-canvas"; wrap.appendChild(canvas); cell.appendChild(wrap); grid.appendChild(cell); setupScratchCanvas(canvas,()=&gt;{ cellsScratchedCount++; checkGameProgress(); }); }); const footerCanvas=document.getElementById('canvas-footer'); setupScratchCanvas(footerCanvas,()=&gt;{ footerScratched=true; footerText.classList.remove('text-slate-400'); footerText.classList.add('text-amber-400','animate-pulse'); checkGameProgress(); }); } function setupScratchCanvas(canvas,onComplete){ const ctx=canvas.getContext('2d'); let isDrawing=false,isRevealed=false; setTimeout(()=&gt;{ const rect=canvas.getBoundingClientRect(); canvas.width=rect.width||300; canvas.height=rect.height||80; const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height); g.addColorStop(0,'#94a3b8'); g.addColorStop(0.5,'#cbd5e1'); g.addColorStop(1,'#64748b'); ctx.fillStyle=g; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.fillStyle='rgba(217,119,6,0.15)'; for(let i=0;i&lt;canvas.width;i+=8) for(let j=0;j&lt;canvas.height;j+=8) ctx.fillRect(i+(j%2*3),j,2,2); ctx.fillStyle='#1e293b'; ctx.font='bold 12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('RASPA ACÁ',canvas.width/2,canvas.height/2); },50); function scratch(e){ if(!isDrawing||isRevealed) return; e.preventDefault(); const rect=canvas.getBoundingClientRect(); const cx=e.touches?e.touches[0].clientX:e.clientX; const cy=e.touches?e.touches[0].clientY:e.clientY; const x=cx-rect.left, y=cy-rect.top; ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(x,y,16,0,Math.PI*2); ctx.fill(); if(Math.random()&lt;0.15) checkPercentage(); } function checkPercentage(){ if(isRevealed) return; try{ const data=ctx.getImageData(0,0,canvas.width,canvas.height).data; let trans=0; for(let i=3;i&lt;data.length;i+=16) if(data[i]===0) trans++; const perc=(trans/(data.length/16))*100; if(perc&gt;45){ isRevealed=true; canvas.style.transition='opacity 0.4s'; canvas.style.opacity=0; setTimeout(()=&gt;canvas.remove(),400); onComplete(); } }catch(e){} } canvas.addEventListener('mousedown',e=&gt;{isDrawing=true; scratch(e);}); window.addEventListener('mouseup',()=&gt;isDrawing=false); canvas.addEventListener('mousemove',scratch); canvas.addEventListener('touchstart',e=&gt;{isDrawing=true; scratch(e);},{passive:false}); window.addEventListener('touchend',()=&gt;isDrawing=false); canvas.addEventListener('touchmove',scratch,{passive:false}); } function checkGameProgress(){ if(cellsScratchedCount&gt;=5 || (cellsScratchedCount&gt;=3 && footerScratched)) document.getElementById('action-zone').classList.remove('hidden'); } function finishGame(){ const isWinner=currentPrize&gt;0; const modal=document.getElementById('reward-modal'); const icon=document.getElementById('modal-icon'); const title=document.getElementById('modal-title'); const desc=document.getElementById('modal-desc'); if(isWinner){ icon.className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center bg-amber-500 text-slate-950 font-bold text-3xl shadow-xl"; icon.innerHTML="🎉"; title.className="text-2xl font-black mb-2 text-amber-400"; title.innerText="¡Felicidades Ganaste!"; desc.innerHTML=Tu cartón coincide con 3 figuras idénticas.<br><span class="text-xl font-bold text-slate-100 block mt-3 bg-slate-900/50 py-2 rounded-xl border border-slate-700">Premio: Gs. ${currentPrize.toLocaleString()}&lt;/span&gt;&lt;br&gt;&lt;span class="text-xs text-slate-400 mt-2 block"&gt;Comunicate con tu vendedor enviándole una captura de pantalla para cobrar.&lt;/span>;
+} else {
+icon.className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center bg-slate-700 text-slate-400 font-bold text-3xl"; icon.innerHTML="👍";
+title.className="text-2xl font-black mb-2 text-slate-200"; title.innerText="Buen intento";
+desc.innerHTML=Esta vez no lograste juntar 3 figuras iguales.&lt;br&gt;&lt;br&gt;&lt;span class="text-slate-400 text-sm"&gt;¡Seguí intentando!&lt;/span>;
+}
+modal.classList.remove('hidden');
+}
+function closeModal(){ document.getElementById('reward-modal').classList.add('hidden'); window.location.href="?"; }
+</script>
+</body>
+</html>
